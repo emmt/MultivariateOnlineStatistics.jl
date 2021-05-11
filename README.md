@@ -9,22 +9,22 @@ estimate statistical moments of multi-variate data.  Computation are performed
 *on-line* that is in one pass, as the data is obtained.
 
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[doc-stable-url]: https://emmt.github.io/MultivariateOnlineStatistics.jl/stable
+[doc-stable-url]: https://emmt.github.io/MultivariateOnlineStatistics/stable
 
 [doc-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[doc-dev-url]: https://emmt.github.io/MultivariateOnlineStatistics.jl/dev
+[doc-dev-url]: https://emmt.github.io/MultivariateOnlineStatistics/dev
 
 [license-url]: ./LICENSE.md
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat
 
-[travis-img]: https://travis-ci.org/emmt/MultivariateOnlineStatistics.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/emmt/MultivariateOnlineStatistics.jl
+[travis-img]: https://travis-ci.org/emmt/MultivariateOnlineStatistics.svg?branch=master
+[travis-url]: https://travis-ci.org/emmt/MultivariateOnlineStatistics
 
-[appveyor-img]: https://ci.appveyor.com/api/projects/status/github/emmt/MultivariateOnlineStatistics.jl?branch=master
-[appveyor-url]: https://ci.appveyor.com/project/emmt/MultivariateOnlineStatistics-jl/branch/master
+[appveyor-img]: https://ci.appveyor.com/api/projects/status/github/emmt/MultivariateOnlineStatistics?branch=master
+[appveyor-url]: https://ci.appveyor.com/project/emmt/MultivariateOnlineStatistics/branch/master
 
-[coveralls-img]: https://coveralls.io/repos/emmt/MultivariateOnlineStatistics.jl/badge.svg?branch=master&service=github
-[coveralls-url]: https://coveralls.io/github/emmt/MultivariateOnlineStatistics.jl?branch=master
+[coveralls-img]: https://coveralls.io/repos/emmt/MultivariateOnlineStatistics/badge.svg?branch=master&service=github
+[coveralls-url]: https://coveralls.io/github/emmt/MultivariateOnlineStatistics?branch=master
 
-[codecov-img]: http://codecov.io/github/emmt/MultivariateOnlineStatistics.jl/coverage.svg?branch=master
-[codecov-url]: http://codecov.io/github/emmt/MultivariateOnlineStatistics.jl?branch=master
+[codecov-img]: http://codecov.io/github/emmt/MultivariateOnlineStatistics/coverage.svg?branch=master
+[codecov-url]: http://codecov.io/github/emmt/MultivariateOnlineStatistics?branch=master
