@@ -14,9 +14,16 @@ using MultivariateOnlineStatistics: storage
     A = IndependentStatistics{2,T}(dims)
     B = IndependentStatistics{2,T}(dims...)
     C = IndependentStatistics{2,T,length(dims)}(map(Int16, dims)...)
+    avg = IndependentStatistics((Array{T}(undef, dims),))
     @test_throws ArgumentError IndependentStatistics{2,T,length(dims)+1}(dims)
+    @test order(A) === 2
+    @test order(avg) === 1
     @test eltype(A) === T
     @test ndims(A) === length(dims)
+    @test size(A) === dims
+    @test ntuple(k -> size(A, k), ndims(A)) === size(A)
+    @test axes(A) === map(Base.OneTo, size(A))
+    @test ntuple(k -> axes(A, k), ndims(A)) === axes(A)
     @test nobs(A) == 0
     @test extrema(mean(A)) === (zero(T), zero(T))
     @test extrema(std(A; corrected = false)) === (zero(T), zero(T))
@@ -63,10 +70,13 @@ using MultivariateOnlineStatistics: storage
     @test nobs(A) == length(X)
     # Push all terms at once.
     push!(B, X)
-    @test nobs(B) == nobs(A)
+    @test nobs(B) == length(X)
     for (a, b) in zip(storage(A), storage(B))
         @test a == b
     end
+    push!(avg, X)
+    @test nobs(avg) == length(X)
+    @test mean(avg) == mean(B)
     # Push in reverse order.
     for i in reverse(1:length(X))
        push!(C, X[i])
