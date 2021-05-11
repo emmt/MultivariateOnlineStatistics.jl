@@ -11,6 +11,7 @@ export
     IndependentStatistics,
     mean,
     nobs,
+    order,
     std,
     var
 
@@ -30,12 +31,12 @@ yields an object to store the `L` first statistical moments of independent
 floating-point type of stored information.  The number `N` of dimensions may be
 omitted as it is equal to `length(dims)`.
 
-For fine tuning the type of storage used by the object, arrays `s1` and `s2`
-storing the statistics may be provided:
+For fine tuning the type of storage used by the object, the arrays `s1`, `s2`,
+..., and `sL` storing the statistics may be provided as an `L`-tuple:
 
     IndependentStatistics((s1, s2, ..., sL))
 
-where `(s1,s2,...,sL)` is an `L`-tuple of arrays having the same floating-point
+where `s1`, `s2`, ..., and `sL` are arrays having the same floating-point
 element type and the same indices.  The storage arrays will be zero-filled.
 
 If storage arrays already contain statistical moments collected from a number
@@ -44,8 +45,8 @@ samples specified as the last argument:
 
     IndependentStatistics((s1, s2, ..., sL), n)
 
-In that case, input arrays `s1`, `s2`, ..., and `sL` must have been correctly intialized,
-typically as follows (∀i):
+In that case, input arrays `s1`, `s2`, ..., and `sL` must have been correctly
+intialized, typically as follows (∀i):
 
     s1[i] = (x_1[i] + ... + x_n[i])/n
     s2[i] = (x_1[i] - s1[i])^2 + ... + (x_n[i] - s1[i])^2
@@ -65,7 +66,7 @@ statistics from more samples is done by:
     push!(A, itr) -> A
 
 where `x` is a single data sample, an (abstract) array of suitable dimension,
-and `itr` is an iterable object which yields a number data samples.  The
+and `itr` is an iterable object which yields a number of data samples.  The
 recurrence formula of Welford (1962) is used to avoid loss of precision due to
 rounding errors.
 
@@ -83,11 +84,12 @@ to avoid loss of precision due to rounding errors.
 To retrieve statistics, a number of methods from the `Statistics` and
 `StatsBase` package are re-exported:
 
-    mean(A)                  # empirical mean
-    var(A; corrected=true)   # unbiased element-wise variance
-    var(A; corrected=false)  # maximum-likelihood element-wise variance
-    std(A; corrected=true)   # unbiased element-wise standard deviation
-    std(A; corrected=false)  # maximum-likelihood element-wise standard deviation
+    mean(A)                  # element-wise sample mean
+    var(A; corrected=true)   # element-wise sample variance
+    std(A; corrected=true)   # element-wise sample standard deviation
+
+If keyword `corrected` is true (the default) then an unbiased estimator
+is returned; otherwise, the maximum-likelihood estimator is returned.
 
 The following basic methods are also applicable to an instance of
 `IndependentStatistics`:
@@ -146,14 +148,14 @@ yields a tuple of the arrays storing the statistics collected by `A`.
 ---
     MultivariateOnlineStatistics.storage(A, k)
 
-yields the `k`-th arrays storing the statistics collected by `A`.
+yields the `k`-th array storing the statistics collected by `A`.
 
 """
 storage(A::IndependentStatistics) = A.s
 storage(A::IndependentStatistics, k) = A.s[k]
 
 """
-    MultivariateOnlineStatistics.order(A)
+    order(A)
 
 yields the highest order of the statistical moments collected by `A`.
 
