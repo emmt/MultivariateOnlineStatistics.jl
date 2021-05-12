@@ -132,6 +132,27 @@ using MultivariateOnlineStatistics: storage
     for (a, b) in zip(storage(A), storage(B))
         @test a == b
     end
+
+    # Partially qualified constructors.
+    push!(empty!(A), X)
+    for B in (IndependentStatistics(storage(A), nobs(A)),
+              IndependentStatistics{order(A)}(storage(A), nobs(A)),
+              IndependentStatistics{order(A),eltype(A)}(storage(A), nobs(A)),
+              IndependentStatistics{order(A),eltype(A),ndims(A)}(storage(A), nobs(A)),)
+        @test nobs(B) == length(X)
+        @test order(B) == order(A)
+        @test eltype(B) == eltype(A)
+        @test size(B) == size(A)
+    end
+    for B in (IndependentStatistics(storage(A)),
+              IndependentStatistics{order(A)}(storage(A)),
+              IndependentStatistics{order(A),eltype(A)}(storage(A)),
+              IndependentStatistics{order(A),eltype(A),ndims(A)}(storage(A)),)
+        @test nobs(B) == 0
+        @test order(B) == order(A)
+        @test eltype(B) == eltype(A)
+        @test size(B) == size(A)
+    end
 end
 
 end # module

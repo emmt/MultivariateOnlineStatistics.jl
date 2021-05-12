@@ -116,6 +116,31 @@ mutable struct IndependentStatistics{L,T<:AbstractFloat,N,
     end
 end
 
+# When number of samples is not provided, assume 0 samples and zero-fill after
+# building with the inner constructor (to check correctness of arguments).
+function IndependentStatistics{L,T,N,A}(
+    s::NTuple{L,A}) where {T<:AbstractFloat,N,L,A<:AbstractArray{T,N}}
+    empty!(IndependentStatistics{L,T,N,A}(s, 0))
+end
+
+# For basic constructors, just provide the missing type parameters and call one
+# of the fully qualified constructors.
+for f in (:(IndependentStatistics{L,T,N}),
+          :(IndependentStatistics{L,T}),
+          :(IndependentStatistics{L}),
+          :(IndependentStatistics))
+    @eval begin
+        function $f(s::NTuple{L,A}) where {T<:AbstractFloat,N,L,
+                                           A<:AbstractArray{T,N}}
+            IndependentStatistics{L,T,N,A}(s)
+        end
+        function $f(s::NTuple{L,A}, n::Integer) where {T<:AbstractFloat,N,L,
+                                                       A<:AbstractArray{T,N}}
+            IndependentStatistics{L,T,N,A}(s, n)
+        end
+    end
+end
+
 IndependentStatistics{L,T}(dims::Integer...) where {L,T} =
     IndependentStatistics{L,T}(to_size(dims))
 IndependentStatistics{L,T}(dims::Dims{N}) where {L,T,N} =
@@ -127,18 +152,6 @@ IndependentStatistics{L,T,N}(dims::NTuple{N,Integer}) where {L,T,N} =
     IndependentStatistics{L,T}(to_size(dims))
 IndependentStatistics{L,T,N}(dims::NTuple{Np,Integer}) where {L,T,N,Np} =
     throw(ArgumentError("number of dimensions is not equal to type-parameter"))
-
-function IndependentStatistics(s::NTuple{L,A}) where {T<:AbstractFloat,N,L,
-                                                      A<:AbstractArray{T,N}}
-    # Zero-fill after building (to check correctness of arguments).
-    return empty!(IndependentStatistics(s, 0))
-end
-
-function IndependentStatistics(s::NTuple{L,A},
-                               n::Integer) where {T<:AbstractFloat,N,L,
-                                                  A<:AbstractArray{T,N}}
-    return IndependentStatistics{L,T,N,A}(s, n)
-end
 
 """
     MultivariateOnlineStatistics.storage(A)
