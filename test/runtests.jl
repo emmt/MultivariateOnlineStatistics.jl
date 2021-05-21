@@ -66,15 +66,15 @@ using MultivariateOnlineStatistics: storage
     @test var(A; corrected = true)  ≈ m2./3
     # Push remaining terms in two different ways.
     push!(A, X[5:7]...)
-    push!(A, X[8:end])
+    merge!(A, X[8:end])
     @test nobs(A) == length(X)
     # Push all terms at once.
-    push!(B, X)
+    merge!(B, X)
     @test nobs(B) == length(X)
     for (a, b) in zip(storage(A), storage(B))
         @test a == b
     end
-    push!(avg, X)
+    merge!(avg, X)
     @test nobs(avg) == length(X)
     @test mean(avg) == mean(B)
     # Push in reverse order.
@@ -134,7 +134,7 @@ using MultivariateOnlineStatistics: storage
     end
 
     # Partially qualified constructors.
-    push!(empty!(A), X)
+    merge!(empty!(A), X)
     for B in (IndependentStatistics(storage(A), nobs(A)),
               IndependentStatistics{order(A)}(storage(A), nobs(A)),
               IndependentStatistics{order(A),eltype(A)}(storage(A), nobs(A)),

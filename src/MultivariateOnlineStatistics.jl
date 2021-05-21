@@ -59,16 +59,16 @@ while `s2`, ..., and `sL` are the sum over the samples of the element-wise
 sample difference with their element-wise empirical mean raised to the
 corresponding power.
 
-Assuming `A` is an instance of `IndependentStatistics`, then integrating
+Assuming `A` is an instance of `IndependentStatistics`, then collecting
 statistics from more samples is done by:
 
-    push!(A, x) -> A
-    push!(A, itr) -> A
+    push!(A, x...) -> A
+    merge!(A, itr) -> A
 
-where `x` is a single data sample, an (abstract) array of suitable dimension,
-and `itr` is an iterable object which yields a number of data samples.  The
-recurrence formula of Welford (1962) is used to avoid loss of precision due to
-rounding errors.
+where each `x...` is a single data sample, an (abstract) array of suitable
+dimension, while `itr` is an iterable object which yields independent data
+samples.  The recurrence formula of Welford (1962) is used to avoid loss of
+precision due to rounding errors.
 
 !!! note
     It is assumed that data samples are mutually independent.
@@ -84,9 +84,10 @@ to avoid loss of precision due to rounding errors.
 To retrieve statistics, a number of methods from the `Statistics` and
 `StatsBase` package are re-exported:
 
-    mean(A)                  # element-wise sample mean
-    var(A; corrected=true)   # element-wise sample variance
-    std(A; corrected=true)   # element-wise sample standard deviation
+    nobs(A)                # the number of independent samples
+    mean(A)                # the element-wise sample mean
+    var(A; corrected=true) # the element-wise sample variance
+    std(A; corrected=true) # the element-wise sample standard deviation
 
 If keyword `corrected` is true (the default) then an unbiased estimator
 is returned; otherwise, the maximum-likelihood estimator is returned.
@@ -94,11 +95,13 @@ is returned; otherwise, the maximum-likelihood estimator is returned.
 The following basic methods are also applicable to an instance of
 `IndependentStatistics`:
 
-    ndims(A)                 # number of dimensions of a data sample
-    size(A)                  # dimensions of a data sample
-    axes(A)                  # indices of a data sample
-    eltype(A)                # floating-point type of the collected statistics
-    order(A)                 # maximum order of statistical moments
+    ndims(A)   # the number of dimensions of a data sample
+    size(A)    # the dimensions of a data sample
+    size(A, k) # the k-th dimension of a data sample
+    axes(A)    # the axes of a data sample
+    axes(A, k) # the k-th axis of a data sample
+    eltype(A)  # the floating-point type of the collected statistics
+    order(A)   # the maximum order of statistical moments
 
 """
 mutable struct IndependentStatistics{L,T<:AbstractFloat,N,
@@ -262,18 +265,6 @@ function mapvar!(f,
     return dst
 end
 
-Base.push!(A::IndependentStatistics, xs...) = push!(A, xs)
-
-function Base.push!(A::IndependentStatistics, itr)
-    I = checked_axes(A)
-    for x in itr
-        axes(x) == I ||
-            dimension_mismatch("data sample has incompatible indices")
-        unsafe_push!(A, x)
-    end
-    return A
-end
-
 function Base.push!(A::IndependentStatistics{L,T,N},
                     x::AbstractArray{<:Real,N}) where {L,T<:AbstractFloat,N}
     axes(x) == checked_axes(A) ||
@@ -316,21 +307,21 @@ function unsafe_push!(A::IndependentStatistics{L,T,N},
     return A
 end
 
-function Base.copyto!(dst::IndependentStatistics{L,T1,N},
-                      src::IndependentStatistics{L,T2,N}) where {L,T1,T2,N}
+function Base.copyto!(dst::IndependentStatistics{L,<:AbstractFloat,N},
+                      src::IndependentStatistics{L,<:AbstractFloat,N}) where {L,N}
     copy!(dst, src)
 end
 
-function Base.copy!(dst::IndependentStatistics{L,T1,N},
-                    src::IndependentStatistics{L,T2,N}) where {L,T1,T2,N}
+function Base.copy!(dst::IndependentStatistics{L,<:AbstractFloat,N},
+                    src::IndependentStatistics{L,<:AbstractFloat,N}) where {L,N}
     checked_axes(dst) == checked_axes(src) ||
         dimension_mismatch("statistics have incompatible indices")
     return unsafe_copy!(dst, src)
 end
 
 # Copy without checking arguments.
-function unsafe_copy!(dst::IndependentStatistics{L,T1,N},
-                      src::IndependentStatistics{L,T2,N}) where {L,T1,T2,N}
+function unsafe_copy!(dst::IndependentStatistics{L,<:AbstractFloat,N},
+                      src::IndependentStatistics{L,<:AbstractFloat,N}) where {L,N}
     for k in 1:L
         copy!(storage(dst, k), storage(src, k))
     end
@@ -338,8 +329,18 @@ function unsafe_copy!(dst::IndependentStatistics{L,T1,N},
     return dst
 end
 
-function Base.merge!(A::IndependentStatistics{L,Ta,N},
-                     B::IndependentStatistics{L,Tb,N}) where {L,Ta,Tb,N}
+function Base.merge!(A::IndependentStatistics, itr)
+    I = checked_axes(A)
+    for x in itr
+        axes(x) == I ||
+            dimension_mismatch("data sample has incompatible indices")
+        unsafe_push!(A, x)
+    end
+    return A
+end
+
+function Base.merge!(A::IndependentStatistics{L,<:AbstractFloat,N},
+                     B::IndependentStatistics{L,<:AbstractFloat,N}) where {L,N}
     checked_axes(A) == checked_axes(B) ||
         dimension_mismatch("statistics have incompatible indices")
     if A.n == 0
