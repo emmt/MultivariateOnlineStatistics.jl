@@ -28,8 +28,8 @@ import StatsBase: nobs
 
 yields an object to store the `L` first statistical moments of independent
 `N`-dimensional data of dimensions `dims`.  Type parameter `T` is the
-floating-point type of stored information.  The number `N` of dimensions may be
-omitted as it is equal to `length(dims)`.
+floating-point type for computed statistics.  The number `N` of dimensions may
+be omitted as it is equal to `length(dims)`.
 
 For fine tuning the type of storage used by the object, the arrays `s1`, `s2`,
 ..., and `sL` storing the statistics may be provided as an `L`-tuple:
