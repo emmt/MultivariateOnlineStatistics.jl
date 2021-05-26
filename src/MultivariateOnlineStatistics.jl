@@ -145,16 +145,18 @@ for f in (:(IndependentStatistics{L,T,N}),
 end
 
 IndependentStatistics{L,T}(dims::Integer...) where {L,T} =
-    IndependentStatistics{L,T}(to_size(dims))
+    IndependentStatistics{L,T}(dims)
+IndependentStatistics{L,T}(dims::NTuple{N,Integer}) where {L,T,N} =
+    IndependentStatistics{L,T}(Dims(dims))
 IndependentStatistics{L,T}(dims::Dims{N}) where {L,T,N} =
     IndependentStatistics(ntuple(x -> zeros(T, dims), L), 0)
 
 IndependentStatistics{L,T,N}(dims::Integer...) where {L,T,N} =
     IndependentStatistics{L,T,N}(dims)
 IndependentStatistics{L,T,N}(dims::NTuple{N,Integer}) where {L,T,N} =
-    IndependentStatistics{L,T}(to_size(dims))
+    IndependentStatistics{L,T}(Dims(dims))
 IndependentStatistics{L,T,N}(dims::NTuple{Np,Integer}) where {L,T,N,Np} =
-    throw(ArgumentError("number of dimensions is not equal to type-parameter"))
+    throw(ArgumentError("number of dimensions is not equal to type parameter"))
 
 """
     MultivariateOnlineStatistics.storage(A)
@@ -449,17 +451,6 @@ yields integer `x` converted to an `Int`.
 """
 to_int(x::Int) = x
 to_int(x::Integer) = Int(x)
-
-"""
-    MultivariateOnlineStatistics.to_size(dims)
-
-yields `dims` converted to an array size, that is an instance of `Dims`.
-
-"""
-to_size(x::Dims) = x
-to_size(x::NTuple{N,Integer}) where {N} = map(to_int, x)
-to_size(x::Integer...) = to_size(x)
-to_size(x::Integer) = to_size(to_int(x),)
 
 @noinline dimension_mismatch(args...) = dimension_mismatch(string(args...))
 @noinline dimension_mismatch(msg::AbstractString) =
