@@ -118,33 +118,14 @@ order(A)   # the maximum order of statistical moments
 
 ## Installation
 
-`MultivariateOnlineStatistics` is not yet an [offical Julia
-package](https://pkg.julialang.org/) but its installation can be as easy as:
-
-```julia
-… pkg> add https://github.com/emmt/MultivariateOnlineStatistics.jl
-```
-
-where `… pkg>` stands for the package manager prompt (the ellipsis `…` denotes
-your current environment).  To start Julia's package manager, launch Julia and,
-at the [REPL of
-Julia](https://docs.julialang.org/en/stable/manual/interacting-with-julia/),
-hit the `]` key; you should get the above `… pkg>` prompt.  To revert to
-Julia's REPL, just hit the `Backspace` key at the `… pkg>` prompt.
-
-To install `MultivariateOnlineStatistics` in a Julia script, write:
+The easiest way to install `MultivariateOnlineStatistics` is via Julia registry
+[`EmmtRegistry`](https://github.com/emmt/EmmtRegistry):
 
 ```julia
 using Pkg
-Pkg.add(PackageSpec(url="https://github.com/emmt/MultivariateOnlineStatistics.jl",
-                    rev="master"));
+pkg"registry add https://github.com/emmt/EmmtRegistry"
+pkg"add MultivariateOnlineStatistics"
 ```
-
-This also works from the Julia REPL.
-
-In any cases, you may use the URL
-`git@github.com:emmt/MultivariateOnlineStatistics.jl` if you want to use `ssh`
-instead of HTTPS.
 
 
 [doc-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
