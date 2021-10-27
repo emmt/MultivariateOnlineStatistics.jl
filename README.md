@@ -99,8 +99,16 @@ var(A; corrected=true) # the element-wise sample variance
 std(A; corrected=true) # the element-wise sample standard deviation
 ```
 
-If keyword `corrected` is true (the default) then an unbiased estimator
-is returned; otherwise, the maximum-likelihood estimator is returned.
+If keyword `corrected` is true (the default) then an unbiased estimator is
+returned; otherwise, the maximum-likelihood estimator is returned.
+
+It is also possible to retrieve the statistical moments for a given data index:
+
+```julia
+mean(A, I...)                # sample mean at indices I...
+var(A, I...; corrected=true) # sample variance at indices I...
+std(A, I...; corrected=true) # sample standard deviation at indices I...
+```
 
 The following basic methods are also applicable to an instance of
 `IndependentStatistics`:

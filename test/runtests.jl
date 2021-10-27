@@ -4,6 +4,9 @@ using MultivariateOnlineStatistics, Test, Statistics, StatsBase
 
 using MultivariateOnlineStatistics: storage
 
+# Dummy private function used to "label" the tests.
+check(flag::Bool, comment) = flag
+
 @testset "MultivariateOnlineStatistics" begin
     T = Float64
     dims = (2, 3, 4)
@@ -64,6 +67,40 @@ using MultivariateOnlineStatistics: storage
     @test var(A; corrected = false) ≈ m2./4
     @test std(A; corrected = true)  ≈ sqrt.(m2./3)
     @test var(A; corrected = true)  ≈ m2./3
+    # Check element-by-element mean.
+    flag = true
+    arr = mean(A)
+    for i in eachindex(arr)
+        flag &= (arr[i] ≈ mean(A, i))
+    end
+    @test check(flag, "mean(A, i) == mean(A)[i]")
+    # Check element-by-element variance.
+    flag = true
+    arr = var(A)
+    for i in eachindex(arr)
+        flag &= (arr[i] ≈ var(A, i))
+    end
+    @test check(flag, "var(A, i) == var(A)[i]")
+    flag = true
+    arr = var(A; corrected=false)
+    for i in eachindex(arr)
+        flag &= (arr[i] ≈ var(A, i; corrected=false))
+    end
+    @test check(flag, "var(A, i; corrected=false) == var(A; corrected=false)[i]")
+    # Check element-by-element standard deviation.
+    flag = true
+    arr = std(A)
+    for i in eachindex(arr)
+        flag &= (arr[i] ≈ std(A, i))
+    end
+    @test check(flag, "std(A, i) == std(A)[i]")
+    flag = true
+    arr = std(A; corrected=false)
+    for i in eachindex(arr)
+        flag &= (arr[i] ≈ std(A, i; corrected=false))
+    end
+    @test check(flag, "std(A, i; corrected=false) == std(A; corrected=false)[i]")
+
     # Push remaining terms in two different ways.
     push!(A, X[5:7]...)
     merge!(A, X[8:end])

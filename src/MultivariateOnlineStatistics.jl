@@ -15,7 +15,7 @@ export
     std,
     var
 
-using Base: OneTo
+using Base: @propagate_inbounds, OneTo
 
 using Statistics
 import Statistics: mean, std, var
@@ -220,21 +220,29 @@ nobs(A::IndependentStatistics) = A.n
 
 # Extend Statistics methods.
 mean(A::IndependentStatistics) = storage(A, 1)
-var(A::IndependentStatistics{L,T,N}; corrected::Bool=true) where {L,T,N} =
-    var!(Array{T,N}(undef, size(A)), A; corrected=corrected)
-std(A::IndependentStatistics{L,T,N}; corrected::Bool=true) where {L,T,N} =
-    std!(Array{T,N}(undef, size(A)), A; corrected=corrected)
+var(A::IndependentStatistics{L,T,N}; kwds...) where {L,T,N} =
+    var!(Array{T,N}(undef, size(A)), A; kwds...)
+std(A::IndependentStatistics{L,T,N}; kwds...) where {L,T,N} =
+    std!(Array{T,N}(undef, size(A)), A; kwds...)
+
+# Idem but with indices.
+@inline @propagate_inbounds mean(A::IndependentStatistics, i1, inds...) =
+    getindex(mean(A), i1, inds...)
+@inline @propagate_inbounds var(A::IndependentStatistics, i1, inds...; kwds...) =
+    mapvar(identity, A, i1, inds...; kwds...)
+@inline @propagate_inbounds std(A::IndependentStatistics, i1, inds...; kwds...) =
+    mapvar(sqrt, A, i1, inds...; kwds...)
 
 function var!(dst::AbstractArray{<:AbstractFloat,N},
               A::IndependentStatistics{<:Any,<:AbstractFloat,N};
-              corrected::Bool=true) where {N}
-    mapvar!(identity, dst, A; corrected = corrected)
+              kwds...) where {N}
+    mapvar!(identity, dst, A; kwds...)
 end
 
 function std!(dst::AbstractArray{<:AbstractFloat,N},
               A::IndependentStatistics{<:Any,<:AbstractFloat,N};
-              corrected::Bool=true) where {N}
-    mapvar!(sqrt, dst, A; corrected = corrected)
+              kwds...) where {N}
+    mapvar!(sqrt, dst, A; kwds...)
 end
 
 # Map the variance.
@@ -265,6 +273,18 @@ function mapvar!(f,
         fill!(dst, f(zero(eltype(dst))))
     end
     return dst
+end
+
+# Thois vesrion does not check the number of samples for efficiency reasons.
+@inline function mapvar(f,
+                        A::IndependentStatistics{L,T,N},
+                        i1, inds...; corrected::Bool=true) where {L,T,N}
+    L ≥ 2 || error("2nd order statistical moment is not available")
+    S2 = storage(A, 2)
+    @boundscheck checkbounds(S2, i1, inds...)
+    @inbounds s2 = getindex(S2, i1, inds...)
+    n = nobs(A)
+    return f(s2/ifelse(corrected, n - 1, n))
 end
 
 function Base.push!(A::IndependentStatistics{L,T,N},
