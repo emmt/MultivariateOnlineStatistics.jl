@@ -246,8 +246,7 @@ function std!(dst::AbstractArray{<:AbstractFloat,N},
 end
 
 # Map the variance.
-function mapvar!(f,
-                 dst::AbstractArray{<:AbstractFloat,N},
+function mapvar!(f, dst::AbstractArray{<:AbstractFloat,N},
                  A::IndependentStatistics{L,T,N};
                  corrected::Bool=true) where {L,T,N}
     L ≥ 2 || error("2nd order statistical moment is not available")
@@ -275,10 +274,9 @@ function mapvar!(f,
     return dst
 end
 
-# Thois vesrion does not check the number of samples for efficiency reasons.
-@inline function mapvar(f,
-                        A::IndependentStatistics{L,T,N},
-                        i1, inds...; corrected::Bool=true) where {L,T,N}
+# This version does not check the number of samples for efficiency reasons.
+@inline function mapvar(f, A::IndependentStatistics{L},
+                        i1, inds...; corrected::Bool=true) where {L}
     L ≥ 2 || error("2nd order statistical moment is not available")
     S2 = storage(A, 2)
     @boundscheck checkbounds(S2, i1, inds...)
