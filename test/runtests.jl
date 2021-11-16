@@ -68,38 +68,68 @@ check(flag::Bool, comment) = flag
     @test std(A; corrected = true)  ≈ sqrt.(m2./3)
     @test var(A; corrected = true)  ≈ m2./3
     # Check element-by-element mean.
-    flag = true
     arr = mean(A)
+    flag = true
     for i in eachindex(arr)
         flag &= (arr[i] ≈ mean(A, i))
     end
-    @test check(flag, "mean(A, i) == mean(A)[i]")
-    # Check element-by-element variance.
+    @test check(flag, "mean(A, i::Integer) == mean(A)[i]")
     flag = true
+    for i in CartesianIndices(arr)
+        flag &= (arr[i] ≈ mean(A, i))
+    end
+    @test check(flag, "mean(A, i::CartesianIndex) == var(A)[i]")
+    flag = true
+    for i in CartesianIndices(arr)
+        flag &= (arr[i] ≈ mean(A, Tuple(i)))
+    end
+    @test check(flag, "mean(A, i::Tuple{Vararg{Integer}}) == var(A)[i]")
+    # Check element-by-element variance.
     arr = var(A)
+    flag = true
     for i in eachindex(arr)
         flag &= (arr[i] ≈ var(A, i))
     end
-    @test check(flag, "var(A, i) == var(A)[i]")
+    @test check(flag, "var(A, i::Integer) == var(A)[i]")
     flag = true
+    for i in CartesianIndices(arr)
+        flag &= (arr[i] ≈ var(A, i))
+    end
+    @test check(flag, "var(A, i::CartesianIndex) == var(A)[i]")
+    flag = true
+    for i in CartesianIndices(arr)
+        flag &= (arr[i] ≈ var(A, Tuple(i)))
+    end
+    @test check(flag, "var(A, i::Tuple{Vararg{Integer}}) == var(A)[i]")
     arr = var(A; corrected=false)
+    flag = true
     for i in eachindex(arr)
         flag &= (arr[i] ≈ var(A, i; corrected=false))
     end
-    @test check(flag, "var(A, i; corrected=false) == var(A; corrected=false)[i]")
+    @test check(flag, "var(A, i::Integer; corrected=false) == var(A; corrected=false)[i]")
     # Check element-by-element standard deviation.
-    flag = true
     arr = std(A)
+    flag = true
     for i in eachindex(arr)
         flag &= (arr[i] ≈ std(A, i))
     end
-    @test check(flag, "std(A, i) == std(A)[i]")
+    @test check(flag, "std(A, i::Integer) == std(A)[i]")
     flag = true
+    for i in CartesianIndices(arr)
+        flag &= (arr[i] ≈ std(A, i))
+    end
+    @test check(flag, "std(A, i::CartesianIndex) == std(A)[i]")
+    flag = true
+    for i in CartesianIndices(arr)
+        flag &= (arr[i] ≈ std(A, Tuple(i)))
+    end
+    @test check(flag, "std(A, i::Tuple{Vararg{Integer}}) == std(A)[i]")
     arr = std(A; corrected=false)
+    flag = true
     for i in eachindex(arr)
         flag &= (arr[i] ≈ std(A, i; corrected=false))
     end
-    @test check(flag, "std(A, i; corrected=false) == std(A; corrected=false)[i]")
+    @test check(flag, "std(A, i::Integer; corrected=false) == std(A; corrected=false)[i]")
 
     # Push remaining terms in two different ways.
     push!(A, X[5:7]...)

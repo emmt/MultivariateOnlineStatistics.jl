@@ -225,30 +225,53 @@ var(A::IndependentStatistics{L,T,N}; kwds...) where {L,T,N} =
 std(A::IndependentStatistics{L,T,N}; kwds...) where {L,T,N} =
     std!(Array{T,N}(undef, size(A)), A; kwds...)
 
-# Idem but with indices.
-@inline @propagate_inbounds mean(A::IndependentStatistics, i1, inds...) =
-    getindex(mean(A), i1, inds...)
-@inline @propagate_inbounds var(A::IndependentStatistics, i1, inds...; kwds...) =
-    mapvar(identity, A, i1, inds...; kwds...)
-@inline @propagate_inbounds std(A::IndependentStatistics, i1, inds...; kwds...) =
-    mapvar(sqrt, A, i1, inds...; kwds...)
+# Idem but with indices.  Index argument must be a bit specific to avoid
+# calling statistics method with an iterator.  NOTE: `getindex` and
+# `checkbounds` methods may be called with a linear index (an `Integer`), a
+# `CartesianIndex`, or a tuple of Cartesian indices.
+@inline @propagate_inbounds function mean(A::IndependentStatistics,
+                                          i::Union{Integer,CartesianIndex})
+    return getindex(mean(A), i)
+end
+
+@inline @propagate_inbounds function mean(A::IndependentStatistics,
+                                          i::Tuple{Vararg{Integer}})
+    return getindex(mean(A), i...)
+end
+
+for (f, g) in ((:var, :identity),
+               (:std, :sqrt))
+    @eval begin
+        @inline @propagate_inbounds function $f(A::IndependentStatistics,
+                                                i::Union{Integer,
+                                                         CartesianIndex};
+                                                kwds...)
+            return _mapvar($g, A, i; kwds...)
+        end
+        @inline @propagate_inbounds function $f(A::IndependentStatistics,
+                                                i::Tuple{Vararg{Integer}};
+                                                kwds...)
+            return _mapvar($g, A, i...; kwds...)
+        end
+    end
+end
 
 function var!(dst::AbstractArray{<:AbstractFloat,N},
               A::IndependentStatistics{<:Any,<:AbstractFloat,N};
               kwds...) where {N}
-    mapvar!(identity, dst, A; kwds...)
+    return _mapvar!(identity, dst, A; kwds...)
 end
 
 function std!(dst::AbstractArray{<:AbstractFloat,N},
               A::IndependentStatistics{<:Any,<:AbstractFloat,N};
               kwds...) where {N}
-    mapvar!(sqrt, dst, A; kwds...)
+   return _mapvar!(sqrt, dst, A; kwds...)
 end
 
 # Map the variance.
-function mapvar!(f, dst::AbstractArray{<:AbstractFloat,N},
-                 A::IndependentStatistics{L,T,N};
-                 corrected::Bool=true) where {L,T,N}
+function _mapvar!(f, dst::AbstractArray{<:AbstractFloat,N},
+                  A::IndependentStatistics{L,T,N};
+                  corrected::Bool=true) where {L,T,N}
     L ≥ 2 || error("2nd order statistical moment is not available")
     s2 = storage(A, 2)
     axes(dst) == axes(s2) ||
@@ -275,8 +298,8 @@ function mapvar!(f, dst::AbstractArray{<:AbstractFloat,N},
 end
 
 # This version does not check the number of samples for efficiency reasons.
-@inline function mapvar(f, A::IndependentStatistics{L},
-                        i1, inds...; corrected::Bool=true) where {L}
+@inline function _mapvar(f, A::IndependentStatistics{L},
+                         i1, inds...; corrected::Bool=true) where {L}
     L ≥ 2 || error("2nd order statistical moment is not available")
     S2 = storage(A, 2)
     @boundscheck checkbounds(S2, i1, inds...)
