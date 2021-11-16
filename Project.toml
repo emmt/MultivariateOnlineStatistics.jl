@@ -1,7 +1,7 @@
 name = "MultivariateOnlineStatistics"
 uuid = "e9d32067-d496-40b5-8c90-e40f06d38009"
 authors = ["Éric Thiébaut <eric.thiebaut@univ-lyon1.fr>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
