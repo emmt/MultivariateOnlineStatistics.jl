@@ -189,7 +189,7 @@ Base.eltype(::Type{<:IndependentStatistics{L,T}}) where {L,T} = T
 Base.ndims(::Type{<:IndependentStatistics{L,T,N}}) where {L,T,N} = N
 Base.size(A::IndependentStatistics) = size(storage(A, 1))
 Base.size(A::IndependentStatistics, k) = size(storage(A, 1), k)
-Base.length(A::IndependentStatistics) = length(size(storage(A, 1))
+Base.length(A::IndependentStatistics) = length(size(storage(A, 1))) 
 Base.axes(A::IndependentStatistics) = axes(storage(A, 1))
 Base.axes(A::IndependentStatistics, k) = axes(storage(A, 1), k)
 
