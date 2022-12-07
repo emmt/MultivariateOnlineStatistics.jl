@@ -340,7 +340,7 @@ function unsafe_push!(A::IndependentStatistics{L,T,N},
         wn = T(n)/(n + 1)
         @inbounds @simd for i in eachindex(s1, s2, x)
             # Apply the recurrence given in Welford (1962).  Note that this
-            # guarantees that s2[i] ≥ O always hold.
+            # guarantees that s2[i] ≥ O always holds.
             u = x[i] - s1[i]
             s1[i] += w1*u
             s2[i] += wn*u^2
