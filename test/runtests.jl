@@ -24,6 +24,7 @@ check(flag::Bool, comment) = flag
     @test eltype(A) === T
     @test ndims(A) === length(dims)
     @test size(A) === dims
+    @test length(A) === prod(dims)
     @test ntuple(k -> size(A, k), ndims(A)) === size(A)
     @test axes(A) === map(Base.OneTo, size(A))
     @test ntuple(k -> axes(A, k), ndims(A)) === axes(A)

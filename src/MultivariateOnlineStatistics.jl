@@ -98,6 +98,7 @@ The following basic methods are also applicable to an instance of
     ndims(A)   # the number of dimensions of a data sample
     size(A)    # the dimensions of a data sample
     size(A, k) # the k-th dimension of a data sample
+    length(A)  # the length of a data sample
     axes(A)    # the axes of a data sample
     axes(A, k) # the k-th axis of a data sample
     eltype(A)  # the floating-point type of the collected statistics
@@ -188,6 +189,7 @@ Base.eltype(::Type{<:IndependentStatistics{L,T}}) where {L,T} = T
 Base.ndims(::Type{<:IndependentStatistics{L,T,N}}) where {L,T,N} = N
 Base.size(A::IndependentStatistics) = size(storage(A, 1))
 Base.size(A::IndependentStatistics, k) = size(storage(A, 1), k)
+Base.length(A::IndependentStatistics) = prod(size(storage(A, 1))) 
 Base.axes(A::IndependentStatistics) = axes(storage(A, 1))
 Base.axes(A::IndependentStatistics, k) = axes(storage(A, 1), k)
 
