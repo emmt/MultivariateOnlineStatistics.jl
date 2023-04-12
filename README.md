@@ -1,8 +1,10 @@
 # Multi-variate online statistics
 
-| **Documentation**               | **License**                     | **Build Status**                                                | **Code Coverage**                   |
-|:--------------------------------|:--------------------------------|:----------------------------------------------------------------|:------------------------------------|
-| [![][doc-dev-img]][doc-dev-url] | [![][license-img]][license-url] | [![][github-ci--img]][github-ci-url] [![][appveyor-img]][appveyor-url] | [![][coveralls-img]][coveralls-url] |
+[![Documentation][doc-dev-img]][doc-dev-url]
+[![License][license-img]][license-url]
+[![Build Status][github-ci-img]][github-ci-url]
+[![Build Status][appveyor-img]][appveyor-url]
+[![Coverage][coveralls-img]][coveralls-url]
 
 `MultivariateOnlineStatistics` is a [Julia](http://julialang.org/) package to
 estimate statistical moments of multi-variate data.  Computation are performed
