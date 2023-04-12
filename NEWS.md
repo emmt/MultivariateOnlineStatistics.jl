@@ -1,5 +1,10 @@
 # List of user-visible changes
 
+## Version 0.2.3
+
+- Use GitHub Actions for continuous integration.
+
+
 ## Version 0.2.2
 
 - Fix `size` for `IndependentStatistics` objects.

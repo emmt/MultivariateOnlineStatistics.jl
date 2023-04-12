@@ -2,7 +2,7 @@
 
 | **Documentation**               | **License**                     | **Build Status**                                                | **Code Coverage**                   |
 |:--------------------------------|:--------------------------------|:----------------------------------------------------------------|:------------------------------------|
-| [![][doc-dev-img]][doc-dev-url] | [![][license-img]][license-url] | [![][travis-img]][travis-url] [![][appveyor-img]][appveyor-url] | [![][coveralls-img]][coveralls-url] |
+| [![][doc-dev-img]][doc-dev-url] | [![][license-img]][license-url] | [![][github-ci--img]][github-ci-url] [![][appveyor-img]][appveyor-url] | [![][coveralls-img]][coveralls-url] |
 
 `MultivariateOnlineStatistics` is a [Julia](http://julialang.org/) package to
 estimate statistical moments of multi-variate data.  Computation are performed
@@ -145,8 +145,8 @@ pkg"add MultivariateOnlineStatistics"
 [license-url]: ./LICENSE.md
 [license-img]: http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat
 
-[travis-img]: https://travis-ci.org/emmt/MultivariateOnlineStatistics.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/emmt/MultivariateOnlineStatistics.jl
+[github-ci-img]: https://github.com/emmt/MultivariateOnlineStatistics.jl/actions/workflows/CI.yml/badge.svg?branch=master
+[github-ci-url]: https://github.com/emmt/MultivariateOnlineStatistics.jl/actions/workflows/CI.yml?query=branch%3Amaster
 
 [appveyor-img]: https://ci.appveyor.com/api/projects/status/github/emmt/MultivariateOnlineStatistics.jl?branch=master
 [appveyor-url]: https://ci.appveyor.com/project/emmt/MultivariateOnlineStatistics-jl/branch/master
