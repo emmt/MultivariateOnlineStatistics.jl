@@ -64,7 +64,7 @@ sample difference with their element-wise empirical mean raised to the
 corresponding power.
 
 
-### Uaage
+### Usage
 
 Assuming `A` is an instance of `IndependentStatistics`, then collecting
 statistics from more samples is done by:
@@ -125,6 +125,16 @@ eltype(A)  # the floating-point type of the collected statistics
 order(A)   # the maximum order of statistical moments
 ```
 
+
+## References
+
+* B. P. Welford, "[*Note on a Method for Calculating Corrected Sums of Squares and
+  Products*](http://dx.doi.org/10.1080/00401706.1962.10490022)", in Technometrics, vol.
+  **4**, pp. 419-420 (1962).
+
+* T. F. Chan, G. H. Golub and R. J. LeVeque, R. J., "*Updating Formulae and a Pairwise
+  Algorithm for Computing Sample Variances*", Department of Computer Science, Stanford
+  University (1979).
 
 ## Installation
 
