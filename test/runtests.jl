@@ -1,8 +1,8 @@
 module TestingMultivariateOnlineStatistics
 
-using MultivariateOnlineStatistics, Test, Statistics, StatsBase
+using MultivariateOnlineStatistics, Test, Statistics, StatsBase, AstroFITS
 
-using MultivariateOnlineStatistics: storage
+using MultivariateOnlineStatistics: storage, STAT_HDU_KWD, STAT_NB_SAMPLES_KWD, isa_stat_hdu
 
 # Dummy private function used to "label" the tests.
 check(flag::Bool, comment) = flag
@@ -220,6 +220,91 @@ check(flag::Bool, comment) = flag
         @test order(B) == order(A)
         @test eltype(B) == eltype(A)
         @test size(B) == size(A)
+    end
+
+    # AstroFITS extension (input/output)
+    mktempdir() do dir
+
+        # prepare some initial stat to work with
+        p = normpath(dir, "test.fits")
+        (W,H,S) = (4,7,15)
+        rawdata = rand(W,H,S)
+        (L,T,N) = (2, Float64, 2)
+        A = Array{T,N}
+        stat = merge!(IndependentStatistics{L,T,N}(W,H), eachslice(rawdata; dims=3))
+        hdr = FitsHeader("TEST" => 42)
+        
+        # test writing on path
+        @test_nowarn writefits!(p, hdr, stat)
+        
+        # test writing on FitsFile
+        FitsFile(p, "w!") do f
+            @test write(f, hdr, stat)[1].data_eltype == T
+            @test f[1].data_size == (W,H,L)
+            @test isa_stat_hdu(f[1])
+        end
+
+        # test FitsImageHDU declaration
+        FitsFile(p, "w!") do f
+            @test FitsImageHDU(f, stat).data_eltype == T
+            @test FitsImageHDU(f, stat).data_size == (W,H,L)
+            @test FitsImageHDU{T}(f, stat).data_eltype == T
+            @test FitsImageHDU{T}(f, stat).data_size == (W,H,L)
+            @test FitsImageHDU{Float32}(f, stat).data_eltype == Float32
+            @test FitsImageHDU{Float32}(f, stat).data_size == (W,H,L)
+            @test FitsImageHDU{T,3}(f, stat).data_size == (W,H,L)
+            msg = "HDU has 4 dimensions instead of $(N+1)"
+            @test_throws DimensionMismatch(msg) FitsImageHDU{T,4}(f, stat)
+        end
+
+        # test writing on FitsImageHDU
+        FitsFile(p, "w!") do f
+            hdu = FitsImageHDU(f, stat)
+            @test write(hdu, stat).data_eltype == T
+            @test write(hdu, stat).data_size == (W,H,L)
+            hdu = FitsImageHDU{T,2}(f, (W,H))
+            msg = "HDU has 2 dimensions instead of $(N+1)"
+            @test_throws DimensionMismatch(msg) write(hdu, stat)
+            hdu = FitsImageHDU{T,3}(f, (W,H,3))
+            msg = "HDU size is $((W,H,3)) instead of $((W,H,L))"
+            @test_throws DimensionMismatch(msg) write(hdu, stat)
+        end
+        
+        # test reading of statistical HDU and equality to our initial stat 
+        writefits!(p, hdr, stat)
+        @test readfits(IndependentStatistics, p).s == stat.s
+        @test readfits(IndependentStatistics, p).n == stat.n
+        FitsFile(p, "r") do f
+            hdu = f[1]
+            @test hdu["TEST"].integer == 42
+            @test read(IndependentStatistics, hdu).n == stat.n
+            @test read(IndependentStatistics{L}, hdu).n == stat.n
+            @test read(IndependentStatistics{L,T}, hdu).n == stat.n
+            @test read(IndependentStatistics{L,T,N}, hdu).n == stat.n
+            @test read(IndependentStatistics{L,T,N,A}, hdu).n == stat.n
+            msg = "HDU has $L statistical moments instead of 3"
+            @test_throws DimensionMismatch(msg) read(IndependentStatistics{3}, hdu)
+            msg = "HDU has $(N+1) dimensions instead of 4"
+            @test_throws DimensionMismatch(msg) read(IndependentStatistics{L,T,3}, hdu)
+            @test_throws TypeError read(IndependentStatistics{L,T,N,Vector{T}}, hdu)
+        end
+        
+        # test absence or wrongness of STAT HDU keywords
+        writefits!(p, hdr, stat)
+        FitsFile(p, "rw") do f
+            hdu = f[1]
+            delete!(hdu, STAT_HDU_KWD)
+            msg = "HDU is not declared as IndependentStatistics data"
+            @test_warn msg read(IndependentStatistics, hdu)
+            
+            hdu[STAT_NB_SAMPLES_KWD] = "wrong"
+            msg = "HDU keyword \"$STAT_NB_SAMPLES_KWD\" is not of type integer"
+            @test_throws ArgumentError(msg) read(IndependentStatistics, hdu)
+            
+            delete!(hdu, STAT_NB_SAMPLES_KWD)
+            msg = "HDU miss keyword \"$STAT_NB_SAMPLES_KWD\""
+            @test_throws ArgumentError(msg) read(IndependentStatistics, hdu)
+        end
     end
 end
 

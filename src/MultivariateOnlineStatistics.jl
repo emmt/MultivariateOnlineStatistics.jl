@@ -495,6 +495,17 @@ yields integer `x` converted to an `Int`.
 to_int(x::Int) = x
 to_int(x::Integer) = Int(x)
 
+
+# For AstroFITS input/output extension
+const STAT_HDU_KWD = "STAT-HDU"
+const STAT_NB_SAMPLES_KWD = "STAT-NB-SAMPLES"
+function isa_stat_hdu end # defined in the extension
+
+@noinline argument_error(args...) =
+    argument_error(string(args...))
+@noinline argument_error(mesg::AbstractString) =
+    throw(ArgumentError(mesg))
+
 @noinline dimension_mismatch(args...) = dimension_mismatch(string(args...))
 @noinline dimension_mismatch(msg::AbstractString) =
     throw(DimensionMismatch(msg))
