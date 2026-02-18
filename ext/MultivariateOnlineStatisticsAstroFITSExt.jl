@@ -16,36 +16,36 @@ else
     import ..Base: read, write
 end
 
-function isa_stat_hdu(hdu)
+function MultivariateOnlineStatistics.isa_stat_hdu(hdu)
     (hdu isa AstroFITS.FitsImageHDU
      && haskey(hdu, STAT_HDU_KWD)
      && hdu[STAT_HDU_KWD].type == FITSHeaders.FITS_LOGICAL
      && hdu[STAT_HDU_KWD].logical)
 end
 
-function write(file::FitsFile, header::OptionalHeader, data::IndependentStatistics, args...)
+function Base.write(file::FitsFile, header::OptionalHeader, data::IndependentStatistics, args...)
     write(file, header, data)
     write(file, args...)
 end
 
-function write(file::FitsFile, hdr::OptionalHeader, stat::IndependentStatistics)
+function Base.write(file::FitsFile, hdr::OptionalHeader, stat::IndependentStatistics)
     write(merge!(FitsImageHDU(file, stat), hdr), stat)
     return file # returns the file not the HDU
 end
 
-FitsImageHDU(file::FitsFile, stat::IndependentStatistics{<:Any,T}) where {T} =
+AstroFITS.FitsImageHDU(file::FitsFile, stat::IndependentStatistics{<:Any,T}) where {T} =
     FitsImageHDU{T}(file, stat)
 
-FitsImageHDU{T}(file::FitsFile, stat::IndependentStatistics{<:Any,<:Any,N}) where {T,N} =
+AstroFITS.FitsImageHDU{T}(file::FitsFile, stat::IndependentStatistics{<:Any,<:Any,N}) where {T,N} =
     FitsImageHDU{T,N+1}(file, stat)
 
-function FitsImageHDU{T,N1}(file::FitsFile,
+function AstroFITS.FitsImageHDU{T,N1}(file::FitsFile,
                             stat::IndependentStatistics{<:Any,<:Any,N}) where {T,N1,N}
     N1 == N+1 || dimension_mismatch("HDU has $N1 dimensions instead of $(N+1)")
     return FitsImageHDU{T,N1}(file, (size(stat)..., order(stat)))
 end
 
-function write(hdu::FitsImageHDU{<:Any,N1},
+function Base.write(hdu::FitsImageHDU{<:Any,N1},
                stat::IndependentStatistics{L,T,N}) where {N1,L,T,N}
     N1 == N+1 || dimension_mismatch("HDU has $N1 dimensions instead of $(N+1)")
 
@@ -66,19 +66,19 @@ end
 
 
 
-read(::Type{IndependentStatistics}, hdu::FitsImageHDU; kwds...) =
+Base.read(::Type{IndependentStatistics}, hdu::FitsImageHDU; kwds...) =
     read(IndependentStatistics{hdu.data_size[end]}, hdu; kwds...)
 
-read(::Type{IndependentStatistics{L}}, hdu::FitsImageHDU{T}; kwds...) where {L,T} =
+Base.read(::Type{IndependentStatistics{L}}, hdu::FitsImageHDU{T}; kwds...) where {L,T} =
     read(IndependentStatistics{L,T}, hdu; kwds...)
 
-read(::Type{IndependentStatistics{L,T}}, hdu::FitsImageHDU{<:Any,N1}; kwds...) where {L,T,N1} =
+Base.read(::Type{IndependentStatistics{L,T}}, hdu::FitsImageHDU{<:Any,N1}; kwds...) where {L,T,N1} =
     read(IndependentStatistics{L,T,N1-1}, hdu; kwds...)
 
-read(::Type{IndependentStatistics{L,T,N}}, hdu::FitsImageHDU; kwds...) where {L,T,N} =
+Base.read(::Type{IndependentStatistics{L,T,N}}, hdu::FitsImageHDU; kwds...) where {L,T,N} =
     read(IndependentStatistics{L,T,N,Array{T,N}}, hdu; kwds...)
 
-function read(::Type{IndependentStatistics{L,T,N,A}},
+function Base.read(::Type{IndependentStatistics{L,T,N,A}},
               hdu::FitsImageHDU{<:Any,N1}; kwds...) where {L,T,N,A,N1}
     N1 == N+1 || dimension_mismatch("HDU has $N1 dimensions instead of $(N+1)")
 
